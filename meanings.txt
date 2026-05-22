@@ -1,0 +1,52 @@
+A gramática dos nomes
+Todo nome é composto de até 3 partes:
+[Casa ou fonte] + [Mercado] + [Lado]
+Casas/fontes:
+B365  = Bet365
+BW    = Bwin
+IW    = Interwetten
+PS    = Pinnacle
+WH    = William Hill
+VC    = Betcup
+Max   = maior odd entre todas as casas
+Avg   = média entre todas as casas
+Mercados:
+(nada)     = resultado 1X2 (vitória/empate/derrota)
+C          = odds de fechamento (Closing) — o "C" aparece no meio
+>2.5 <2.5  = over/under 2.5 gols
+AH         = Asian Handicap
+Lado:
+H = Home (mandante vence)
+D = Draw (empate)
+A = Away (visitante vence)
+Então você consegue ler qualquer coluna assim:
+PSH   = Pinnacle + 1X2 + Home       → odd da Pinnacle pro mandante ganhar
+AvgA  = Média   + 1X2 + Away       → odd média pro visitante ganhar
+P>2.5 = Pinnacle + Over 2.5 gols   → odd da Pinnacle pra mais de 2.5 gols
+PSCH  = Pinnacle + Closing + Home  → odd de FECHAMENTO da Pinnacle pro mandante
+
+Como cada grupo afeta o modelo
+Agora a parte que importa — como cada coluna se relaciona com o que estamos construindo:
+Resultado real — o alvo do modelo
+FTHG, FTAG  → gols no fim do jogo → alimentam o Dixon-Coles
+FTR         → H/D/A → vira o 0/1/2 que o modelo aprende
+Essas colunas são o que queremos prever — nunca entram como feature, só como alvo.
+Odds de abertura — features do modelo
+PSH, PSD, PSA   → Pinnacle abertura → as mais importantes
+AvgH, AvgD, AvgA → média abertura → backup
+Convertidas em probabilidade (1/odd), elas carregam o consenso do mercado sobre a força dos times. São das features mais poderosas que existem — o mercado já "mastigou" muita informação antes de você.
+Odds de fechamento — alvo de validação
+PSCH, PSCD, PSCA → Pinnacle fechamento
+Nunca entram como feature — o fechamento acontece depois da aposta. Usamos só pra medir CLV: "a odd que peguei foi melhor ou pior que o fechamento?"
+Estatísticas do jogo — cuidado
+HS, AS   → chutes
+HST, AST → chutes no gol
+HC, AC   → escanteios
+HY, AY   → cartões amarelos
+Essas são perigosas. Só existem depois que o jogo aconteceu — não preveem resultado, são consequência dele. Pra prever jogos futuros, você usaria a média histórica dessas estatísticas dos times, não os valores do jogo em si. Por agora vamos ignorar e usar só quando fizermos a feature engineering de form.
+Over/Under — mercado secundário
+P>2.5, P<2.5    → Pinnacle over/under abertura
+Avg>2.5, Avg<2.5
+Úteis mais pra frente — o modelo de gols vai prever isso naturalmente via distribuição de Poisson.
+Asian Handicap — ignora por agora
+AHh, B365AHH, PAHH...
